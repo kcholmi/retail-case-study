@@ -1,0 +1,174 @@
+table table_joined
+	lineageTag: 74f290c1-a380-462d-bc1b-824aa434e3f2
+
+	column date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 54596232-b925-4b66-9161-4adb55e37239
+		summarizeBy: none
+		sourceColumn: date
+
+		variation Variation
+			isDefault
+			relationship: fa7d0838-ec44-4572-9444-f2ad1dc40410
+			defaultHierarchy: LocalDateTable_e466a23a-1ff1-48e2-9b9a-0732e7a94c15.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column day_of_week
+		dataType: string
+		lineageTag: fdc823b4-79d3-434c-a454-e3635967c631
+		summarizeBy: none
+		sourceColumn: day_of_week
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_weekend
+		dataType: string
+		lineageTag: b02d43c8-1a76-4063-83dc-72e6abd70f28
+		summarizeBy: none
+		sourceColumn: is_weekend
+
+		annotation SummarizationSetBy = Automatic
+
+	column shop_id
+		dataType: int64
+		formatString: 0
+		lineageTag: d5bad8a9-89f3-4dfe-898d-029db1a0b2b0
+		summarizeBy: sum
+		sourceColumn: shop_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column shop_name
+		dataType: string
+		lineageTag: f815a170-a332-4328-a2fb-51fc4c678b67
+		summarizeBy: none
+		sourceColumn: shop_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column customers
+		dataType: int64
+		formatString: 0
+		lineageTag: 675845f2-8ea4-456e-b202-36f2cdeddb5f
+		summarizeBy: sum
+		sourceColumn: customers
+
+		annotation SummarizationSetBy = Automatic
+
+	column sales_usd
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 6e923f46-9219-4975-9604-4f4f9cfb50a9
+		summarizeBy: sum
+		sourceColumn: sales_usd
+
+		annotation SummarizationSetBy = Automatic
+
+	column sales_per_customer
+		dataType: decimal
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 39034ff3-18d4-4ac2-9db0-fbcafe985da1
+		summarizeBy: sum
+		sourceColumn: sales_per_customer
+
+		annotation SummarizationSetBy = Automatic
+
+	column pct_male
+		dataType: double
+		lineageTag: 2938c86e-002f-4d05-b5d3-e75e72448ba3
+		summarizeBy: sum
+		sourceColumn: pct_male
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column pct_female
+		dataType: double
+		lineageTag: 3c8913a0-816e-4bf7-966a-9f6e6ed29e35
+		summarizeBy: sum
+		sourceColumn: pct_female
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column pct_family
+		dataType: double
+		lineageTag: bd138834-41be-45ca-9acc-c82447520577
+		summarizeBy: sum
+		sourceColumn: pct_family
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column pct_single
+		dataType: double
+		lineageTag: a05ed31d-4d9c-43bb-afd6-3924c421f6d4
+		summarizeBy: sum
+		sourceColumn: pct_single
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column avg_temp_f
+		dataType: double
+		lineageTag: 95b06089-c454-4aef-8abb-ab19308afa2d
+		summarizeBy: sum
+		sourceColumn: avg_temp_f
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column precip_in
+		dataType: double
+		lineageTag: 2f1f433d-003e-4b0e-a511-b7b20176bf81
+		summarizeBy: sum
+		sourceColumn: precip_in
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column is_rain
+		dataType: string
+		lineageTag: 06d8a7c7-1eec-4f35-9e73-d4dc952993b8
+		summarizeBy: none
+		sourceColumn: is_rain
+
+		annotation SummarizationSetBy = Automatic
+
+	column humidity_pct
+		dataType: double
+		lineageTag: fc3a5346-39d5-4dcc-8f8a-3210d3616f01
+		summarizeBy: sum
+		sourceColumn: humidity_pct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition table_joined = m
+		mode: import
+		source =
+				let
+				    Source = Odbc.DataSource("dsn=pbi_connector", [HierarchicalNavigation=true]),
+				    retail_Database = Source{[Name="retail",Kind="Database"]}[Data],
+				    table_joined_View = retail_Database{[Name="table_joined",Kind="View"]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(table_joined_View,{{"date", type date}, {"sales_usd", Currency.Type}, {"sales_per_customer", Currency.Type}, {"is_rain", type text}}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Changed Type","0","Not Raining",Replacer.ReplaceText,{"is_rain"}),
+				    #"Replaced Value1" = Table.ReplaceValue(#"Replaced Value","1","Raining",Replacer.ReplaceText,{"is_rain"})
+				in
+				    #"Replaced Value1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+
